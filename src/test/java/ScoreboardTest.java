@@ -58,4 +58,18 @@ public class ScoreboardTest {
         assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
     }
 
+    @Test
+    void shouldThrowExceptionForNegativeScores() {
+        Scoreboard scoreboard = new Scoreboard();
+        scoreboard.startMatch("Mexico", "Canada");
+
+        Exception homeTeamNegativeScoreException = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.updateScore("Mexico", "Canada", -1, 0));
+
+        Exception awayTeamNegativeScoreException = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.updateScore("Mexico", "Canada", 0, -5));
+
+        assertEquals("Scores cannot be negative.", homeTeamNegativeScoreException.getMessage());
+        assertEquals("Scores cannot be negative.", awayTeamNegativeScoreException.getMessage());
+    }
 }
