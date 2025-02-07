@@ -85,4 +85,15 @@ public class ScoreboardTest {
         assertEquals(0, matches.size());
     }
 
+    @Test
+    void shouldThrowExceptionWhenFinishingNonExistingMatch() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            scoreboard.finishMatch("Mexico", "Canada");
+        });
+
+        assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
+    }
+
 }
