@@ -21,7 +21,15 @@ public class Scoreboard {
     }
 
     public List<FootballMatch> getSummary() {
-        return matches;
+        return matches.stream()
+                .sorted((m1, m2) -> {
+                    int scoreComparison = Integer.compare(m2.totalScore(), m1.totalScore());
+                    if (scoreComparison != 0) {
+                        return scoreComparison;
+                    }
+                    return Integer.compare(matches.indexOf(m2), matches.indexOf(m1));
+                })
+                .toList();
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
