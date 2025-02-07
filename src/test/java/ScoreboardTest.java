@@ -96,4 +96,30 @@ public class ScoreboardTest {
         assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
     }
 
+    @Test
+    void shouldReturnMatchesSortedByTotalScoreAndStartTime() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        scoreboard.startMatch("Mexico", "Canada");
+        scoreboard.startMatch("Spain", "Brazil");
+        scoreboard.startMatch("Germany", "France");
+        scoreboard.startMatch("Uruguay", "Italy");
+        scoreboard.startMatch("Argentina", "Australia");
+
+        scoreboard.updateScore("Mexico", "Canada", 0, 5);
+        scoreboard.updateScore("Spain", "Brazil", 10, 2);
+        scoreboard.updateScore("Germany", "France", 2, 2);
+        scoreboard.updateScore("Uruguay", "Italy", 6, 6);
+        scoreboard.updateScore("Argentina", "Australia", 3, 1);
+
+        List<FootballMatch> matches = scoreboard.getSummary();
+
+        assertEquals(5, matches.size());
+        assertEquals("Uruguay", matches.get(0).homeTeam());
+        assertEquals("Spain", matches.get(1).homeTeam());
+        assertEquals("Mexico", matches.get(2).homeTeam());
+        assertEquals("Argentina", matches.get(3).homeTeam());
+        assertEquals("Germany", matches.get(4).homeTeam());
+    }
+
 }
