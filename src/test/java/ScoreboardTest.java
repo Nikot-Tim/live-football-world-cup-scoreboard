@@ -72,4 +72,17 @@ public class ScoreboardTest {
         assertEquals("Scores cannot be negative.", homeTeamNegativeScoreException.getMessage());
         assertEquals("Scores cannot be negative.", awayTeamNegativeScoreException.getMessage());
     }
+
+    @Test
+    void shouldFinishExistingMatch() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        scoreboard.startMatch("Mexico", "Canada");
+
+        scoreboard.finishMatch("Mexico", "Canada");
+
+        List<FootballMatch> matches = scoreboard.getSummary();
+        assertEquals(0, matches.size());
+    }
+
 }
