@@ -25,4 +25,7 @@ public class Validator {
         }
     }
 
+    public void validateTeams(String homeTeam, String awayTeam) {
+    }
+
 }

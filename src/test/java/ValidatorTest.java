@@ -47,4 +47,25 @@ class ValidatorTest {
         assertEquals("Scores cannot be negative.", exceptionHomeTeamNegativeScore.getMessage());
         assertEquals("Scores cannot be negative.", exceptionAwayTeamNegativeScore.getMessage());
     }
+
+    @Test
+    void shouldThrowExceptionForNullOrEmptyTeamNames() {
+        Validator validator = new Validator();
+
+        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateTeams(null, "Canada"));
+        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
+
+        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateTeams("Mexico", null));
+        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
+
+        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateTeams("", "Canada"));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
+
+        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateTeams("Mexico", ""));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
+    }
 }
