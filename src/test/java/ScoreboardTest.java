@@ -33,4 +33,18 @@ public class ScoreboardTest {
 
         assertEquals("Match already exists: Mexico vs Canada", exception.getMessage());
     }
+
+    @Test
+    void shouldUpdateScoreForExistingMatch() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        scoreboard.startMatch("Mexico", "Canada");
+        scoreboard.updateScore("Mexico", "Canada", 0, 5);
+
+        FootballMatch match = scoreboard.getSummary().get(0);
+
+        assertEquals(0, match.scores().homeTeamScore());
+        assertEquals(5, match.scores().awayTeamScore());
+    }
+
 }

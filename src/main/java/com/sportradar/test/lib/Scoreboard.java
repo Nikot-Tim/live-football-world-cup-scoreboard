@@ -22,4 +22,7 @@ public class Scoreboard {
     public List<FootballMatch> getSummary() {
         return matches;
     }
+
+    public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+    }
 }
