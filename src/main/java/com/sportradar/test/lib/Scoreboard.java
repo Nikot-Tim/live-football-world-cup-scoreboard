@@ -41,7 +41,10 @@ public class Scoreboard {
                 );
     }
 
-    public void finishMatch(String homeTeam, String awayTeam){
-
+    public void finishMatch(String homeTeam, String awayTeam) {
+        matches.removeIf(match ->
+                match.homeTeam().equalsIgnoreCase(homeTeam) &&
+                        match.awayTeam().equalsIgnoreCase(awayTeam)
+        );
     }
 }
