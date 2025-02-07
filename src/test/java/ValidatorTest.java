@@ -16,9 +16,8 @@ class ValidatorTest {
         Validator validator = new Validator();
         Map<String, FootballMatch> matches = new LinkedHashMap<>();
 
-        Exception exception = assertThrows(MatchNotFoundException.class, () -> {
-            validator.validateMatchExists("Mexico vs Canada", matches);
-        });
+        Exception exception = assertThrows(MatchNotFoundException.class,
+                () -> validator.validateMatchExists("Mexico vs Canada", matches));
 
         assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
     }
@@ -29,10 +28,23 @@ class ValidatorTest {
         Map<String, FootballMatch> matches = new LinkedHashMap<>();
         matches.put("Mexico vs Canada", new FootballMatch("Mexico", "Canada", new MatchScores(0, 0)));
 
-        Exception exception = assertThrows(MatchAlreadyExistsException.class, () -> {
-            validator.validateIfMatchAlreadyExists("Mexico vs Canada", matches);
-        });
+        Exception exception = assertThrows(MatchAlreadyExistsException.class,
+                () -> validator.validateIfMatchAlreadyExists("Mexico vs Canada", matches));
 
         assertEquals("Match already exists: Mexico vs Canada", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionForNegativeScores() {
+        Validator validator = new Validator();
+
+        Exception exceptionHomeTeamNegativeScore = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateScores(-1, 1));
+
+        Exception exceptionAwayTeamNegativeScore = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateScores(1, -1));
+
+        assertEquals("Scores cannot be negative.", exceptionHomeTeamNegativeScore.getMessage());
+        assertEquals("Scores cannot be negative.", exceptionAwayTeamNegativeScore.getMessage());
     }
 }

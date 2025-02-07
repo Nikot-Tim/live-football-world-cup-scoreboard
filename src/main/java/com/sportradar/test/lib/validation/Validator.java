@@ -19,5 +19,7 @@ public class Validator {
         }
     }
 
+    public void validateScores(int homeScore, int awayScore) {
+    }
 
 }
