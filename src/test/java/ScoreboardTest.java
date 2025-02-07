@@ -47,4 +47,15 @@ public class ScoreboardTest {
         assertEquals(5, match.scores().awayTeamScore());
     }
 
+    @Test
+    void shouldThrowExceptionWhenUpdatingNonExistingMatch() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            scoreboard.updateScore("Mexico", "Canada", 0, 5);
+        });
+
+        assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
+    }
+
 }
