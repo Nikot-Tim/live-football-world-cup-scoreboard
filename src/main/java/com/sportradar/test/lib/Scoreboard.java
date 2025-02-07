@@ -24,6 +24,9 @@ public class Scoreboard {
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+        if (homeScore < 0 || awayScore < 0) {
+            throw new IllegalArgumentException("Scores cannot be negative.");
+        }
         matches.stream()
                 .filter(match -> match.homeTeam().equalsIgnoreCase(homeTeam) && match.awayTeam().equalsIgnoreCase(awayTeam))
                 .findFirst()
