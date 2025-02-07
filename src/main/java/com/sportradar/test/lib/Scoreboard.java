@@ -1,34 +1,31 @@
 package com.sportradar.test.lib;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public class Scoreboard {
-    private final List<FootballMatch> matches = new ArrayList<>();
+    private static final String MATCH_KEY_SEPARATOR = " vs ";
+
+    private final Map<String, FootballMatch> matches = new LinkedHashMap<>();
 
     public void startMatch(String homeTeam, String awayTeam) {
-        String matchKey = homeTeam + " vs " + awayTeam;
-
-        if (matches.stream().anyMatch(match ->
-                (match.homeTeam().equalsIgnoreCase(homeTeam) && match.awayTeam().equalsIgnoreCase(awayTeam)) ||
-                        (match.homeTeam().equalsIgnoreCase(awayTeam) && match.awayTeam().equalsIgnoreCase(homeTeam))
-        )) {
+        String matchKey = generateMatchKey(homeTeam, awayTeam);
+        if (matches.containsKey(matchKey)) {
             throw new IllegalArgumentException("Match already exists: " + matchKey);
         }
-
-        matches.add(new FootballMatch(homeTeam, awayTeam, new MatchScores(0, 0)));
+        matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(0, 0)));
     }
 
     public List<FootballMatch> getSummary() {
-        return matches.stream()
-                .sorted((m1, m2) -> {
-                    int scoreComparison = Integer.compare(m2.totalScore(), m1.totalScore());
-                    if (scoreComparison != 0) {
-                        return scoreComparison;
-                    }
-                    return Integer.compare(matches.indexOf(m2), matches.indexOf(m1));
-                })
+        return matches.values().stream()
+                .sorted(Comparator
+                        .comparingInt(FootballMatch::totalScore)
+                        .reversed()
+                        .thenComparing(match -> new ArrayList<>(matches.values()).indexOf(match), Comparator.reverseOrder())
+                )
                 .toList();
     }
 
@@ -36,29 +33,23 @@ public class Scoreboard {
         if (homeScore < 0 || awayScore < 0) {
             throw new IllegalArgumentException("Scores cannot be negative.");
         }
-        matches.stream()
-                .filter(match -> match.homeTeam().equalsIgnoreCase(homeTeam) && match.awayTeam().equalsIgnoreCase(awayTeam))
-                .findFirst()
-                .ifPresentOrElse(
-                        match -> {
-                            int index = matches.indexOf(match);
-                            matches.set(index, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
-                        },
-                        () -> {
-                            throw new IllegalArgumentException("Match not found: " + homeTeam + " vs " + awayTeam);
-                        }
-                );
+
+        String matchKey = generateMatchKey(homeTeam, awayTeam);
+        if (!matches.containsKey(matchKey)) {
+            throw new IllegalArgumentException("Match not found: " + matchKey);
+        }
+
+        matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-        Optional<FootballMatch> matchToRemove = matches.stream()
-                .filter(match -> match.homeTeam().equalsIgnoreCase(homeTeam) &&
-                        match.awayTeam().equalsIgnoreCase(awayTeam))
-                .findFirst();
+        String matchKey = generateMatchKey(homeTeam, awayTeam);
+        if (matches.remove(matchKey) == null) {
+            throw new IllegalArgumentException("Match not found: " + matchKey);
+        }
+    }
 
-        matchToRemove.ifPresentOrElse(
-                matches::remove,
-                () -> { throw new IllegalArgumentException("Match not found: " + homeTeam + " vs " + awayTeam); }
-        );
+    private String generateMatchKey(String homeTeam, String awayTeam) {
+        return homeTeam + MATCH_KEY_SEPARATOR + awayTeam;
     }
 }
