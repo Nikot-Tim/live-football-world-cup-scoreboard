@@ -1,8 +1,8 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static utils.TestUtils.assertInvalidTeamNames;
 import static utils.TestUtils.assertThrowsWithMessage;
-import com.sportradar.test.lib.domain.FootballMatch;
 import com.sportradar.test.lib.Scoreboard;
+import com.sportradar.test.lib.domain.FootballMatch;
 import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
 import com.sportradar.test.lib.exception.MatchNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
