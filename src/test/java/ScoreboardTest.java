@@ -81,7 +81,6 @@ public class ScoreboardTest {
         Scoreboard scoreboard = new Scoreboard();
 
         scoreboard.startMatch("Mexico", "Canada");
-
         scoreboard.finishMatch("Mexico", "Canada");
 
         List<FootballMatch> matches = scoreboard.getSummary();

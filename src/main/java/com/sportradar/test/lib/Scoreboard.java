@@ -1,7 +1,6 @@
 package com.sportradar.test.lib;
 
-import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
-import com.sportradar.test.lib.exception.MatchNotFoundException;
+import com.sportradar.test.lib.validation.Validator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -13,12 +12,12 @@ public class Scoreboard {
 
     private final Map<String, FootballMatch> matches = new LinkedHashMap<>();
     private List<FootballMatch> sortedMatches = new ArrayList<>();
+    private final Validator validator = new Validator();
 
     public void startMatch(String homeTeam, String awayTeam) {
+        validator.validateTeams(homeTeam, awayTeam);
         String matchKey = generateMatchKey(homeTeam, awayTeam);
-        if (matches.containsKey(matchKey)) {
-            throw new MatchAlreadyExistsException(matchKey);
-        }
+        validator.validateIfMatchAlreadyExists(matchKey, matches);
         matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(0, 0)));
         updateSortedMatches();
     }
@@ -28,24 +27,19 @@ public class Scoreboard {
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
-        if (homeScore < 0 || awayScore < 0) {
-            throw new IllegalArgumentException("Scores cannot be negative.");
-        }
-
+        validator.validateTeams(homeTeam, awayTeam);
+        validator.validateScores(homeScore, awayScore);
         String matchKey = generateMatchKey(homeTeam, awayTeam);
-        if (!matches.containsKey(matchKey)) {
-            throw new MatchNotFoundException(matchKey);
-        }
-
+        validator.validateMatchExists(matchKey, matches);
         matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
         updateSortedMatches();
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
+        validator.validateTeams(homeTeam, awayTeam);
         String matchKey = generateMatchKey(homeTeam, awayTeam);
-        if (matches.remove(matchKey) == null) {
-            throw new MatchNotFoundException(matchKey);
-        }
+        validator.validateMatchExists(matchKey, matches);
+        matches.remove(matchKey);
         updateSortedMatches();
     }
 
