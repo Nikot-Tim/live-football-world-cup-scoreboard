@@ -1,107 +1,97 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import com.sportradar.test.lib.FootballMatch;
+import static utils.TestUtils.assertInvalidTeamNames;
+import static utils.TestUtils.assertThrowsWithMessage;
+import com.sportradar.test.lib.domain.FootballMatch;
 import com.sportradar.test.lib.Scoreboard;
 import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
 import com.sportradar.test.lib.exception.MatchNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 
-public class ScoreboardTest {
+class ScoreboardTest {
+    private Scoreboard scoreboard;
+
+    @BeforeEach
+    void setUp() {
+        scoreboard = new Scoreboard();
+    }
 
     @Test
     void shouldStartNewMatchWithInitialScore() {
-        Scoreboard scoreboard = new Scoreboard();
-
         scoreboard.startMatch("Mexico", "Canada");
 
         List<FootballMatch> matches = scoreboard.getSummary();
 
         assertEquals(1, matches.size());
-        assertEquals("Mexico", matches.get(0).homeTeam());
-        assertEquals("Canada", matches.get(0).awayTeam());
-        assertEquals(0, matches.get(0).scores().homeTeamScore());
-        assertEquals(0, matches.get(0).scores().awayTeamScore());
+        assertMatch(matches.get(0), "Mexico", "Canada", 0, 0);
     }
 
     @Test
     void shouldNotAllowDuplicateMatches() {
-        Scoreboard scoreboard = new Scoreboard();
-
         scoreboard.startMatch("Mexico", "Canada");
 
-        Exception exception = assertThrows(MatchAlreadyExistsException.class, () ->
-            scoreboard.startMatch("Mexico", "Canada"));
-
-        assertEquals("Match already exists: Mexico vs Canada", exception.getMessage());
+        assertThrowsWithMessage(
+                MatchAlreadyExistsException.class,
+                () -> scoreboard.startMatch("Mexico", "Canada"),
+                "Match already exists: Mexico vs Canada"
+        );
     }
 
     @Test
     void shouldUpdateScoreForExistingMatch() {
-        Scoreboard scoreboard = new Scoreboard();
-
         scoreboard.startMatch("Mexico", "Canada");
         scoreboard.updateScore("Mexico", "Canada", 0, 5);
 
         FootballMatch match = scoreboard.getSummary().get(0);
-
-        assertEquals(0, match.scores().homeTeamScore());
-        assertEquals(5, match.scores().awayTeamScore());
+        assertMatch(match, "Mexico", "Canada", 0, 5);
     }
 
     @Test
     void shouldThrowExceptionWhenUpdatingNonExistingMatch() {
-        Scoreboard scoreboard = new Scoreboard();
-
-        Exception exception = assertThrows(MatchNotFoundException.class, () -> {
-            scoreboard.updateScore("Mexico", "Canada", 0, 5);
-        });
-
-        assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
+        assertThrowsWithMessage(
+                MatchNotFoundException.class,
+                () -> scoreboard.updateScore("Mexico", "Canada", 0, 5),
+                "Match not found: Mexico vs Canada"
+        );
     }
 
     @Test
     void shouldThrowExceptionForNegativeScores() {
-        Scoreboard scoreboard = new Scoreboard();
         scoreboard.startMatch("Mexico", "Canada");
 
-        Exception homeTeamNegativeScoreException = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.updateScore("Mexico", "Canada", -1, 0));
+        assertThrowsWithMessage(
+                IllegalArgumentException.class,
+                () -> scoreboard.updateScore("Mexico", "Canada", -1, 0),
+                "Scores cannot be negative."
+        );
 
-        assertEquals("Scores cannot be negative.", homeTeamNegativeScoreException.getMessage());
-
-        Exception awayTeamNegativeScoreException = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.updateScore("Mexico", "Canada", 0, -5));
-
-        assertEquals("Scores cannot be negative.", awayTeamNegativeScoreException.getMessage());
+        assertThrowsWithMessage(
+                IllegalArgumentException.class,
+                () -> scoreboard.updateScore("Mexico", "Canada", 0, -5),
+                "Scores cannot be negative."
+        );
     }
 
     @Test
     void shouldFinishExistingMatch() {
-        Scoreboard scoreboard = new Scoreboard();
-
         scoreboard.startMatch("Mexico", "Canada");
         scoreboard.finishMatch("Mexico", "Canada");
 
-        List<FootballMatch> matches = scoreboard.getSummary();
-        assertEquals(0, matches.size());
+        assertEquals(0, scoreboard.getSummary().size());
     }
 
     @Test
     void shouldThrowExceptionWhenFinishingNonExistingMatch() {
-        Scoreboard scoreboard = new Scoreboard();
-
-        Exception exception = assertThrows(MatchNotFoundException.class, () -> {
-            scoreboard.finishMatch("Mexico", "Canada");
-        });
-
-        assertEquals("Match not found: Mexico vs Canada", exception.getMessage());
+        assertThrowsWithMessage(
+                MatchNotFoundException.class,
+                () -> scoreboard.finishMatch("Mexico", "Canada"),
+                "Match not found: Mexico vs Canada"
+        );
     }
 
     @Test
     void shouldReturnMatchesSortedByTotalScoreAndStartTime() {
-        Scoreboard scoreboard = new Scoreboard();
-
         scoreboard.startMatch("Mexico", "Canada");
         scoreboard.startMatch("Spain", "Brazil");
         scoreboard.startMatch("Germany", "France");
@@ -116,75 +106,44 @@ public class ScoreboardTest {
 
         List<FootballMatch> matches = scoreboard.getSummary();
 
-        assertEquals(5, matches.size());
-        assertEquals("Uruguay", matches.get(0).homeTeam());
-        assertEquals("Spain", matches.get(1).homeTeam());
-        assertEquals("Mexico", matches.get(2).homeTeam());
-        assertEquals("Argentina", matches.get(3).homeTeam());
-        assertEquals("Germany", matches.get(4).homeTeam());
+        assertMatchOrder(matches, "Uruguay", "Spain", "Mexico", "Argentina", "Germany");
     }
 
     @Test
     void shouldThrowExceptionWhenStartingMatchWithEmptyOrNullTeamNames() {
-        Scoreboard scoreboard = new Scoreboard();
-
-        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.startMatch(null, "Canada"));
-        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
-
-        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.startMatch("Mexico", null));
-        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
-
-        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.startMatch("", "Canada"));
-        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
-
-        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.startMatch("Mexico", ""));
-        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
+        assertInvalidTeamNames(() -> scoreboard.startMatch(null, "Canada"));
+        assertInvalidTeamNames(() -> scoreboard.startMatch("Mexico", null));
+        assertInvalidTeamNames(() -> scoreboard.startMatch("", "Canada"));
+        assertInvalidTeamNames(() -> scoreboard.startMatch("Mexico", " "));
     }
 
     @Test
     void shouldThrowExceptionWhenUpdatingMatchWithEmptyOrNullTeamNames() {
-        Scoreboard scoreboard = new Scoreboard();
-
-        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.updateScore(null, "Canada", 0,5));
-        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
-
-        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.updateScore("Mexico", null, 0,5));
-        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
-
-        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.updateScore("", "Canada", 0,5));
-        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
-
-        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.updateScore("Mexico", "", 0,5));
-        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
+        assertInvalidTeamNames(() -> scoreboard.updateScore(null, "Canada", 0, 5));
+        assertInvalidTeamNames(() -> scoreboard.updateScore("Mexico", null, 0, 5));
+        assertInvalidTeamNames(() -> scoreboard.updateScore("", "Canada", 0, 5));
+        assertInvalidTeamNames(() -> scoreboard.updateScore("Mexico", " ", 0, 5));
     }
 
     @Test
     void shouldThrowExceptionWhenFinishingMatchWithEmptyOrNullTeamNames() {
-        Scoreboard scoreboard = new Scoreboard();
-
-        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.finishMatch(null, "Canada"));
-        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
-
-        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.finishMatch("Mexico", null));
-        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
-
-        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.finishMatch("", "Canada"));
-        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
-
-        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
-                () -> scoreboard.finishMatch("Mexico", ""));
-        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
+        assertInvalidTeamNames(() -> scoreboard.finishMatch(null, "Canada"));
+        assertInvalidTeamNames(() -> scoreboard.finishMatch("Mexico", null));
+        assertInvalidTeamNames(() -> scoreboard.finishMatch("", "Canada"));
+        assertInvalidTeamNames(() -> scoreboard.finishMatch("Mexico", " "));
     }
 
+    private void assertMatch(FootballMatch match, String homeTeam, String awayTeam, int homeScore, int awayScore) {
+        assertEquals(homeTeam, match.homeTeam());
+        assertEquals(awayTeam, match.awayTeam());
+        assertEquals(homeScore, match.scores().homeTeamScore());
+        assertEquals(awayScore, match.scores().awayTeamScore());
+    }
+
+    private void assertMatchOrder(List<FootballMatch> matches, String... expectedOrder) {
+        assertEquals(expectedOrder.length, matches.size());
+        for (int i = 0; i < expectedOrder.length; i++) {
+            assertEquals(expectedOrder[i], matches.get(i).homeTeam());
+        }
+    }
 }

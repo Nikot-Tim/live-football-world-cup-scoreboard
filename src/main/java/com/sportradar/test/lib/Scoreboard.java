@@ -1,5 +1,7 @@
 package com.sportradar.test.lib;
 
+import com.sportradar.test.lib.domain.FootballMatch;
+import com.sportradar.test.lib.domain.MatchScores;
 import com.sportradar.test.lib.validation.Validator;
 import java.util.ArrayList;
 import java.util.Comparator;

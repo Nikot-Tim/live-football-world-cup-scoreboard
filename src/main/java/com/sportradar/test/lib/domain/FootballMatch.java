@@ -1,7 +1,7 @@
-package com.sportradar.test.lib;
+package com.sportradar.test.lib.domain;
 
 public record FootballMatch(String homeTeam, String awayTeam, MatchScores scores) {
-    int totalScore() {
+    public int totalScore() {
         return scores.homeTeamScore() + scores.awayTeamScore();
     }
 }
