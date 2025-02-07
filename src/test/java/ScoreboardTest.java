@@ -68,10 +68,11 @@ public class ScoreboardTest {
         Exception homeTeamNegativeScoreException = assertThrows(IllegalArgumentException.class,
                 () -> scoreboard.updateScore("Mexico", "Canada", -1, 0));
 
+        assertEquals("Scores cannot be negative.", homeTeamNegativeScoreException.getMessage());
+
         Exception awayTeamNegativeScoreException = assertThrows(IllegalArgumentException.class,
                 () -> scoreboard.updateScore("Mexico", "Canada", 0, -5));
 
-        assertEquals("Scores cannot be negative.", homeTeamNegativeScoreException.getMessage());
         assertEquals("Scores cannot be negative.", awayTeamNegativeScoreException.getMessage());
     }
 
@@ -122,6 +123,69 @@ public class ScoreboardTest {
         assertEquals("Mexico", matches.get(2).homeTeam());
         assertEquals("Argentina", matches.get(3).homeTeam());
         assertEquals("Germany", matches.get(4).homeTeam());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenStartingMatchWithEmptyOrNullTeamNames() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.startMatch(null, "Canada"));
+        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
+
+        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.startMatch("Mexico", null));
+        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
+
+        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.startMatch("", "Canada"));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
+
+        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.startMatch("Mexico", ""));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingMatchWithEmptyOrNullTeamNames() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.updateScore(null, "Canada", 0,5));
+        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
+
+        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.updateScore("Mexico", null, 0,5));
+        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
+
+        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.updateScore("", "Canada", 0,5));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
+
+        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.updateScore("Mexico", "", 0,5));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFinishingMatchWithEmptyOrNullTeamNames() {
+        Scoreboard scoreboard = new Scoreboard();
+
+        Exception exceptionNullHomeName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.finishMatch(null, "Canada"));
+        assertEquals("Team names must not be null or empty.", exceptionNullHomeName.getMessage());
+
+        Exception exceptionNullAwayName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.finishMatch("Mexico", null));
+        assertEquals("Team names must not be null or empty.", exceptionNullAwayName.getMessage());
+
+        Exception exceptionEmptyHomeName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.finishMatch("", "Canada"));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyHomeName.getMessage());
+
+        Exception exceptionEmptyAwayName = assertThrows(IllegalArgumentException.class,
+                () -> scoreboard.finishMatch("Mexico", ""));
+        assertEquals("Team names must not be null or empty.", exceptionEmptyAwayName.getMessage());
     }
 
 }

@@ -41,10 +41,11 @@ class ValidatorTest {
         Exception exceptionHomeTeamNegativeScore = assertThrows(IllegalArgumentException.class,
                 () -> validator.validateScores(-1, 1));
 
+        assertEquals("Scores cannot be negative.", exceptionHomeTeamNegativeScore.getMessage());
+
         Exception exceptionAwayTeamNegativeScore = assertThrows(IllegalArgumentException.class,
                 () -> validator.validateScores(1, -1));
 
-        assertEquals("Scores cannot be negative.", exceptionHomeTeamNegativeScore.getMessage());
         assertEquals("Scores cannot be negative.", exceptionAwayTeamNegativeScore.getMessage());
     }
 
