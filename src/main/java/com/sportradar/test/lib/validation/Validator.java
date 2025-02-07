@@ -12,4 +12,8 @@ public class Validator {
         }
     }
 
+    public void validateIfMatchAlreadyExists(String matchKey, Map<String, FootballMatch> matches) {
+    }
+
+
 }
