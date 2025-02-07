@@ -24,5 +24,12 @@ public class Scoreboard {
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+        matches.stream()
+                .filter(match -> match.homeTeam().equalsIgnoreCase(homeTeam) && match.awayTeam().equalsIgnoreCase(awayTeam))
+                .findFirst()
+                .ifPresent(match -> {
+                    int index = matches.indexOf(match);
+                    matches.set(index, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
+                });
     }
 }
