@@ -10,6 +10,7 @@ public class Scoreboard {
     private static final String MATCH_KEY_SEPARATOR = " vs ";
 
     private final Map<String, FootballMatch> matches = new LinkedHashMap<>();
+    private List<FootballMatch> sortedMatches = new ArrayList<>();
 
     public void startMatch(String homeTeam, String awayTeam) {
         String matchKey = generateMatchKey(homeTeam, awayTeam);
@@ -17,16 +18,11 @@ public class Scoreboard {
             throw new IllegalArgumentException("Match already exists: " + matchKey);
         }
         matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(0, 0)));
+        updateSortedMatches();
     }
 
     public List<FootballMatch> getSummary() {
-        return matches.values().stream()
-                .sorted(Comparator
-                        .comparingInt(FootballMatch::totalScore)
-                        .reversed()
-                        .thenComparing(match -> new ArrayList<>(matches.values()).indexOf(match), Comparator.reverseOrder())
-                )
-                .toList();
+        return sortedMatches;
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
@@ -40,6 +36,7 @@ public class Scoreboard {
         }
 
         matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
+        updateSortedMatches();
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
@@ -47,9 +44,19 @@ public class Scoreboard {
         if (matches.remove(matchKey) == null) {
             throw new IllegalArgumentException("Match not found: " + matchKey);
         }
+        updateSortedMatches();
     }
 
     private String generateMatchKey(String homeTeam, String awayTeam) {
         return homeTeam + MATCH_KEY_SEPARATOR + awayTeam;
+    }
+
+    private void updateSortedMatches() {
+        sortedMatches = matches.values().stream()
+                .sorted(Comparator
+                        .comparingInt(FootballMatch::totalScore).reversed()
+                        .thenComparing(match -> new ArrayList<>(matches.values()).indexOf(match), Comparator.reverseOrder())
+                )
+                .toList();
     }
 }
