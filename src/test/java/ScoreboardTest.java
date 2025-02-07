@@ -2,6 +2,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.sportradar.test.lib.FootballMatch;
 import com.sportradar.test.lib.Scoreboard;
+import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
+import com.sportradar.test.lib.exception.MatchNotFoundException;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class ScoreboardTest {
 
         scoreboard.startMatch("Mexico", "Canada");
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(MatchAlreadyExistsException.class, () ->
             scoreboard.startMatch("Mexico", "Canada"));
 
         assertEquals("Match already exists: Mexico vs Canada", exception.getMessage());
@@ -51,7 +53,7 @@ public class ScoreboardTest {
     void shouldThrowExceptionWhenUpdatingNonExistingMatch() {
         Scoreboard scoreboard = new Scoreboard();
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(MatchNotFoundException.class, () -> {
             scoreboard.updateScore("Mexico", "Canada", 0, 5);
         });
 
@@ -89,7 +91,7 @@ public class ScoreboardTest {
     void shouldThrowExceptionWhenFinishingNonExistingMatch() {
         Scoreboard scoreboard = new Scoreboard();
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(MatchNotFoundException.class, () -> {
             scoreboard.finishMatch("Mexico", "Canada");
         });
 

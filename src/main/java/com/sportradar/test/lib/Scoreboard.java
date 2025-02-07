@@ -1,5 +1,7 @@
 package com.sportradar.test.lib;
 
+import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
+import com.sportradar.test.lib.exception.MatchNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -15,7 +17,7 @@ public class Scoreboard {
     public void startMatch(String homeTeam, String awayTeam) {
         String matchKey = generateMatchKey(homeTeam, awayTeam);
         if (matches.containsKey(matchKey)) {
-            throw new IllegalArgumentException("Match already exists: " + matchKey);
+            throw new MatchAlreadyExistsException(matchKey);
         }
         matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(0, 0)));
         updateSortedMatches();
@@ -32,7 +34,7 @@ public class Scoreboard {
 
         String matchKey = generateMatchKey(homeTeam, awayTeam);
         if (!matches.containsKey(matchKey)) {
-            throw new IllegalArgumentException("Match not found: " + matchKey);
+            throw new MatchNotFoundException(matchKey);
         }
 
         matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
@@ -42,7 +44,7 @@ public class Scoreboard {
     public void finishMatch(String homeTeam, String awayTeam) {
         String matchKey = generateMatchKey(homeTeam, awayTeam);
         if (matches.remove(matchKey) == null) {
-            throw new IllegalArgumentException("Match not found: " + matchKey);
+            throw new MatchNotFoundException(matchKey);
         }
         updateSortedMatches();
     }
