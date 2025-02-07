@@ -1,4 +1,4 @@
-# Live Football World Cup Score Board Library
+# Live Football World Cup Scoreboard Library
 
 ## Content
 
