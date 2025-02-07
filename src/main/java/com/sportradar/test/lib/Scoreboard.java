@@ -27,9 +27,14 @@ public class Scoreboard {
         matches.stream()
                 .filter(match -> match.homeTeam().equalsIgnoreCase(homeTeam) && match.awayTeam().equalsIgnoreCase(awayTeam))
                 .findFirst()
-                .ifPresent(match -> {
-                    int index = matches.indexOf(match);
-                    matches.set(index, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
-                });
+                .ifPresentOrElse(
+                        match -> {
+                            int index = matches.indexOf(match);
+                            matches.set(index, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
+                        },
+                        () -> {
+                            throw new IllegalArgumentException("Match not found: " + homeTeam + " vs " + awayTeam);
+                        }
+                );
     }
 }
