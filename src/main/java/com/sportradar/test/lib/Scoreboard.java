@@ -2,6 +2,7 @@ package com.sportradar.test.lib;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Scoreboard {
     private final List<FootballMatch> matches = new ArrayList<>();
@@ -42,9 +43,14 @@ public class Scoreboard {
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-        matches.removeIf(match ->
-                match.homeTeam().equalsIgnoreCase(homeTeam) &&
-                        match.awayTeam().equalsIgnoreCase(awayTeam)
+        Optional<FootballMatch> matchToRemove = matches.stream()
+                .filter(match -> match.homeTeam().equalsIgnoreCase(homeTeam) &&
+                        match.awayTeam().equalsIgnoreCase(awayTeam))
+                .findFirst();
+
+        matchToRemove.ifPresentOrElse(
+                matches::remove,
+                () -> { throw new IllegalArgumentException("Match not found: " + homeTeam + " vs " + awayTeam); }
         );
     }
 }
