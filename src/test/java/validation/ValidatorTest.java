@@ -1,9 +1,11 @@
 package validation;
 
+import static utils.TestUtils.AWAY_TEAM_TEST_NAME;
+import static utils.TestUtils.HOME_TEAM_TEST_NAME;
+import static utils.TestUtils.TEST_MATCH_KEY;
 import static utils.TestUtils.assertInvalidTeamNames;
 import static utils.TestUtils.assertThrowsWithMessage;
 import com.sportradar.test.lib.domain.FootballMatch;
-import com.sportradar.test.lib.domain.MatchScores;
 import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
 import com.sportradar.test.lib.exception.MatchNotFoundException;
 import com.sportradar.test.lib.validation.Validator;
@@ -26,19 +28,19 @@ class ValidatorTest {
     void shouldThrowExceptionWhenMatchNotExists() {
         assertThrowsWithMessage(
                 MatchNotFoundException.class,
-                () -> validator.validateMatchExists("Mexico vs Canada", matches),
-                "Match not found: Mexico vs Canada"
+                () -> validator.validateMatchExists(TEST_MATCH_KEY, matches),
+                MatchNotFoundException.MESSAGE_PREFIX + TEST_MATCH_KEY
         );
     }
 
     @Test
     void shouldThrowExceptionWhenMatchAlreadyExists() {
-        matches.put("Mexico vs Canada", new FootballMatch("Mexico", "Canada", new MatchScores(0, 0)));
+        matches.put(TEST_MATCH_KEY, FootballMatch.withScores(HOME_TEAM_TEST_NAME, AWAY_TEAM_TEST_NAME, 0, 0));
 
         assertThrowsWithMessage(
                 MatchAlreadyExistsException.class,
-                () -> validator.validateIfMatchAlreadyExists("Mexico vs Canada", matches),
-                "Match already exists: Mexico vs Canada"
+                () -> validator.validateIfMatchAlreadyExists(TEST_MATCH_KEY, matches),
+                MatchAlreadyExistsException.MESSAGE_PREFIX + TEST_MATCH_KEY
         );
     }
 
@@ -47,22 +49,22 @@ class ValidatorTest {
         assertThrowsWithMessage(
                 IllegalArgumentException.class,
                 () -> validator.validateScores(-1, 1),
-                "Scores cannot be negative."
+                Validator.NEGATIVE_SCORES_ERROR
         );
 
         assertThrowsWithMessage(
                 IllegalArgumentException.class,
                 () -> validator.validateScores(1, -1),
-                "Scores cannot be negative."
+                Validator.NEGATIVE_SCORES_ERROR
         );
     }
 
     @Test
     void shouldThrowExceptionForNullOrEmptyTeamNames() {
-        assertInvalidTeamNames(() -> validator.validateTeams(null, "Canada"));
-        assertInvalidTeamNames(() -> validator.validateTeams("Mexico", null));
-        assertInvalidTeamNames(() -> validator.validateTeams("", "Canada"));
-        assertInvalidTeamNames(() -> validator.validateTeams("Mexico", ""));
+        assertInvalidTeamNames(() -> validator.validateTeams(null, AWAY_TEAM_TEST_NAME));
+        assertInvalidTeamNames(() -> validator.validateTeams(HOME_TEAM_TEST_NAME, null));
+        assertInvalidTeamNames(() -> validator.validateTeams("", AWAY_TEAM_TEST_NAME));
+        assertInvalidTeamNames(() -> validator.validateTeams(HOME_TEAM_TEST_NAME, ""));
     }
 
 }

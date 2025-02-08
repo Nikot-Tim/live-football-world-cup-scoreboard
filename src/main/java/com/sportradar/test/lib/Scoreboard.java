@@ -1,7 +1,6 @@
 package com.sportradar.test.lib;
 
 import com.sportradar.test.lib.domain.FootballMatch;
-import com.sportradar.test.lib.domain.MatchScores;
 import com.sportradar.test.lib.validation.Validator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,7 +19,7 @@ public class Scoreboard {
         validator.validateTeams(homeTeam, awayTeam);
         String matchKey = generateMatchKey(homeTeam, awayTeam);
         validator.validateIfMatchAlreadyExists(matchKey, matches);
-        matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(0, 0)));
+        matches.put(matchKey, FootballMatch.withScores(homeTeam, awayTeam,0, 0));
         updateSortedMatches();
     }
 
@@ -33,7 +32,7 @@ public class Scoreboard {
         validator.validateScores(homeScore, awayScore);
         String matchKey = generateMatchKey(homeTeam, awayTeam);
         validator.validateMatchExists(matchKey, matches);
-        matches.put(matchKey, new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore)));
+        matches.put(matchKey, FootballMatch.withScores(homeTeam, awayTeam, homeScore, awayScore));
         updateSortedMatches();
     }
 
@@ -52,7 +51,7 @@ public class Scoreboard {
     private void updateSortedMatches() {
         sortedMatches = matches.values().stream()
                 .sorted(Comparator
-                        .comparingInt(FootballMatch::totalScore).reversed()
+                        .comparingInt(FootballMatch::getTotalScore).reversed()
                         .thenComparing(match -> new ArrayList<>(matches.values()).indexOf(match), Comparator.reverseOrder())
                 )
                 .toList();
