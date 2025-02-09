@@ -11,17 +11,21 @@ import com.sportradar.test.lib.exception.MatchNotFoundException;
 import com.sportradar.test.lib.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.LinkedHashMap;
+import utils.TestUtils;
+import java.time.Clock;
+import java.util.HashMap;
 import java.util.Map;
 
 class ValidatorTest {
     private Validator validator;
     private Map<String, FootballMatch> matches;
+    private Clock fixedClock;
 
     @BeforeEach
     void setUp() {
+        fixedClock = TestUtils.FIXED_CLOCK;
         validator = new Validator();
-        matches = new LinkedHashMap<>();
+        matches = new HashMap<>();
     }
 
     @Test
@@ -35,7 +39,7 @@ class ValidatorTest {
 
     @Test
     void shouldThrowExceptionWhenMatchAlreadyExists() {
-        matches.put(TEST_MATCH_KEY, FootballMatch.withScores(HOME_TEAM_TEST_NAME, AWAY_TEAM_TEST_NAME, 0, 0));
+        matches.put(TEST_MATCH_KEY, FootballMatch.withScores(HOME_TEAM_TEST_NAME, AWAY_TEAM_TEST_NAME, 0, 0, fixedClock));
 
         assertThrowsWithMessage(
                 MatchAlreadyExistsException.class,

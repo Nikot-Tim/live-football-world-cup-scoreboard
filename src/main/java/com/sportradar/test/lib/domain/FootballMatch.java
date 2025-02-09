@@ -1,6 +1,9 @@
 package com.sportradar.test.lib.domain;
 
-public record FootballMatch(String homeTeam, String awayTeam, MatchScores scores) {
+import java.time.Clock;
+import java.time.Instant;
+
+public record FootballMatch(String homeTeam, String awayTeam, MatchScores scores, Instant startTime) {
     public int getTotalScore() {
         return scores.homeTeamScore() + scores.awayTeamScore();
     }
@@ -13,7 +16,7 @@ public record FootballMatch(String homeTeam, String awayTeam, MatchScores scores
         return scores.awayTeamScore();
     }
 
-    public static FootballMatch withScores(String homeTeam, String awayTeam, int homeScore, int awayScore) {
-        return new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore));
+    public static FootballMatch withScores(String homeTeam, String awayTeam, int homeScore, int awayScore, Clock clock) {
+        return new FootballMatch(homeTeam, awayTeam, new MatchScores(homeScore, awayScore), Instant.now(clock));
     }
 }

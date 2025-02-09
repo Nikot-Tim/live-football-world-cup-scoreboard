@@ -11,6 +11,8 @@ import com.sportradar.test.lib.exception.MatchNotFoundException;
 import com.sportradar.test.lib.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.TestUtils;
+import java.time.Clock;
 import java.util.List;
 
 class ScoreboardTest {
@@ -18,7 +20,8 @@ class ScoreboardTest {
 
     @BeforeEach
     void setUp() {
-        scoreboard = new Scoreboard();
+        Clock fixedClock = TestUtils.FIXED_CLOCK;
+        scoreboard = new Scoreboard(fixedClock);
     }
 
     @Test
