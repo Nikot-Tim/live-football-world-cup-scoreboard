@@ -6,6 +6,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 
+/**
+ * Utility class for test constants and helper methods.
+ * Provides reusable test data and assertions for unit tests.
+ */
 public class TestUtils {
 
     public static final String HOME_TEAM_TEST_NAME = "HomeTeamTestName";

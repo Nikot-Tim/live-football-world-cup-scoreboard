@@ -1,65 +1,47 @@
 package com.sportradar.test.lib;
 
 import com.sportradar.test.lib.domain.FootballMatch;
-import com.sportradar.test.lib.validation.Validator;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import com.sportradar.test.lib.exception.MatchAlreadyExistsException;
+import com.sportradar.test.lib.exception.MatchNotFoundException;
 import java.util.List;
-import java.util.Map;
 
-public class Scoreboard {
-    private static final String MATCH_KEY_SEPARATOR = " vs ";
+/**
+ * Interface for a live football scoreboard.
+ * Provides methods for managing football matches, updating scores, and retrieving summaries.
+ */
+public interface Scoreboard {
+    /**
+     * Starts a new match with an initial score of 0-0.
+     * @param homeTeam Name of the home team.
+     * @param awayTeam Name of the away team.
+     * @throws IllegalArgumentException if the match data is not correct.
+     * @throws MatchAlreadyExistsException if the match already exists.
+     */
+    void startMatch(String homeTeam, String awayTeam);
 
-    private final Map<String, FootballMatch> matches = new HashMap<>();
-    private List<FootballMatch> sortedMatches = new ArrayList<>();
-    private final Validator validator = new Validator();
-    private final Clock clock;
+    /**
+     * Updates the score of an existing match.
+     * @param homeTeam Name of the home team.
+     * @param awayTeam Name of the away team.
+     * @param homeScore Updated home team score.
+     * @param awayScore Updated away team score.
+     * @throws IllegalArgumentException if the match data is not correct.
+     * @throws MatchNotFoundException if the match does not exist.
+     */
+    void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore);
 
-    public Scoreboard(Clock clock) {
-        this.clock = clock;
-    }
+    /**
+     * Finishes match and removes it from the scoreboard.
+     * @param homeTeam Name of the home team.
+     * @param awayTeam Name of the away team.
+     * @throws IllegalArgumentException if the match data is not correct.
+     * @throws MatchNotFoundException if the match does not exist.
+     */
+    void finishMatch(String homeTeam, String awayTeam);
 
-    public void startMatch(String homeTeam, String awayTeam) {
-        validator.validateTeams(homeTeam, awayTeam);
-        String matchKey = generateMatchKey(homeTeam, awayTeam);
-        validator.validateIfMatchAlreadyExists(matchKey, matches);
-        matches.put(matchKey, FootballMatch.withScores(homeTeam, awayTeam,0, 0, clock));
-        updateSortedMatches();
-    }
-
-    public List<FootballMatch> getSummary() {
-        return sortedMatches;
-    }
-
-    public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
-        validator.validateTeams(homeTeam, awayTeam);
-        validator.validateScores(homeScore, awayScore);
-        String matchKey = generateMatchKey(homeTeam, awayTeam);
-        validator.validateMatchExists(matchKey, matches);
-        matches.put(matchKey, FootballMatch.withScores(homeTeam, awayTeam, homeScore, awayScore, clock));
-        updateSortedMatches();
-    }
-
-    public void finishMatch(String homeTeam, String awayTeam) {
-        validator.validateTeams(homeTeam, awayTeam);
-        String matchKey = generateMatchKey(homeTeam, awayTeam);
-        validator.validateMatchExists(matchKey, matches);
-        matches.remove(matchKey);
-        updateSortedMatches();
-    }
-
-    private String generateMatchKey(String homeTeam, String awayTeam) {
-        return homeTeam + MATCH_KEY_SEPARATOR + awayTeam;
-    }
-
-    private void updateSortedMatches() {
-        sortedMatches = matches.values().stream()
-                .sorted(Comparator
-                        .comparingInt(FootballMatch::getTotalScore).reversed()
-                        .thenComparing(FootballMatch::startTime, Comparator.reverseOrder())
-                )
-                .toList();
-    }
+    /**
+     * Retrieves a summary of matches sorted by total score and start time.
+     * @return A new list containing the sorted matches.
+     */
+    List<FootballMatch> getSummary();
 }

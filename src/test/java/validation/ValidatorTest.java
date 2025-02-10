@@ -16,6 +16,10 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Unit tests for FootballWorldCupScoreboard.
+ * Ensures correct validation of the match and score.
+ */
 class ValidatorTest {
     private Validator validator;
     private Map<String, FootballMatch> matches;
@@ -32,7 +36,7 @@ class ValidatorTest {
     void shouldThrowExceptionWhenMatchNotExists() {
         assertThrowsWithMessage(
                 MatchNotFoundException.class,
-                () -> validator.validateMatchExists(TEST_MATCH_KEY, matches),
+                () -> validator.validateIfMatchCanBeFound(TEST_MATCH_KEY, matches),
                 MatchNotFoundException.MESSAGE_PREFIX + TEST_MATCH_KEY
         );
     }
